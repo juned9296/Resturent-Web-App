@@ -17,9 +17,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Camera, Edit, LogOut, Save } from "lucide-react"
 import Link from "next/link"
+import { logoutUser } from "@/service/auth"
 
 export default function ProfilePage() {
-  const { user, updateUserProfile, logout } = useAuth()
+  const { user, updateUserProfile} = useAuth()
   const { toast } = useToast()
 
   const [isEditing, setIsEditing] = useState(false)
@@ -41,6 +42,11 @@ export default function ProfilePage() {
       })
     }
   }, [user])
+
+  const logout = () => {
+    logoutUser()
+    window.location.reload()
+  } 
 
   // Improve the profile page editability
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

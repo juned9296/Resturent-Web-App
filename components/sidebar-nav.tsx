@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils"
 import { useAuth } from "./providers/auth-provider"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { motion } from "framer-motion"
+import { logoutUser } from "@/service/auth"
 
 const customerNavItems = [
   { icon: Home, label: "Home", href: "/", color: "text-brand-primary" },
@@ -48,10 +49,17 @@ const adminNavItems = [
 export function SidebarNav() {
   const pathname = usePathname()
   const { isSidebarOpen, toggleSidebar } = useSidebar()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated } = useAuth()
 
   // Determine which nav items to show based on user role
-  const navItems = user?.role === "admin" ? adminNavItems : customerNavItems
+  const navItems = user?.role === "ADMIN" ? adminNavItems : customerNavItems
+
+
+  const logout = () => {
+     logoutUser() 
+     window.location.reload()
+     
+  }     
 
   return (
     <>

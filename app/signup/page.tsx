@@ -1,53 +1,64 @@
 "use client"
 
 import type React from "react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 import { SidebarNav } from "@/components/sidebar-nav"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 // import { useAuth } from "@/components/providers/auth-provider"
-import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast"
-import { login } from "@/service/auth"
+import { signup } from "@/service/auth"
 
-export default function LoginPage() {
+export default function SignupPage() {
+  const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [role, setRole] = useState("user") // Default role
   const [isLoading, setIsLoading] = useState(false)
 
-  // const { login } = useAuth()
+  // const { register } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirectUrl = searchParams.get("redirect") || "/"
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match!",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      const success = await login(email, password)
+      const success = await signup(fullName, email, password,)
 
       if (success) {
         toast({
-          title: "Login successful",
-          description: "Welcome back!",
+          title: "Signup successful",
+          description: "Your account has been created!",
         })
-        router.push(redirectUrl)
+        router.push("/login")
       } else {
         toast({
-          title: "Login failed",
-          description: "Invalid email or password. Please try again.",
+          title: "Signup failed",
+          description: "Email already in use or invalid details.",
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
-        title: "Login error",
+        title: "Signup error",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
@@ -64,11 +75,23 @@ export default function LoginPage() {
           <div className="w-full max-w-md">
             <div className="bg-white rounded-lg shadow-md p-8">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-satisfy text-brand-primary mb-2">Welcome Back</h1>
-                <p className="text-gray-600">Sign in to your account</p>
+                <h1 className="text-3xl font-satisfy text-brand-primary mb-2">Create an Account</h1>
+                <p className="text-gray-600">Sign up to get started</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -82,12 +105,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot-password" className="text-xs text-brand-primary hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -98,26 +116,38 @@ export default function LoginPage() {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
                 <Button
                   type="submit"
                   className="w-full bg-brand-primary hover:bg-brand-primary/90"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign In"}
+                  {isLoading ? "Signing up..." : "Sign Up"}
                 </Button>
               </form>
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                  Don't have an account?{" "}
-                  <Link href="/signup" className="text-brand-primary hover:underline">
-                    Sign up
+                  Already have an account?{" "}
+                  <Link href="/login" className="text-brand-primary hover:underline">
+                    Sign in
                   </Link>
                 </p>
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-center text-sm text-gray-600 mb-4">Or sign in with</p>
+                <p className="text-center text-sm text-gray-600 mb-4">Or sign up with</p>
                 <div className="grid grid-cols-2 gap-3">
                   <Button variant="outline" type="button">
                     Google
@@ -131,7 +161,7 @@ export default function LoginPage() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500">
-                By signing in, you agree to our{" "}
+                By signing up, you agree to our{" "}
                 <Link href="/terms" className="underline">
                   Terms of Service
                 </Link>{" "}
@@ -148,4 +178,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
