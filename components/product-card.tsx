@@ -13,6 +13,8 @@ import type { FoodItem } from "./providers/menu-provider"
 import { useFavorites } from "./providers/favorites-provider"
 import { motion } from "framer-motion"
 import { useToast } from "./ui/use-toast"
+import { useRouter } from "next/navigation"
+import { useAuth } from "./providers/auth-provider"
 
 interface ProductCardProps {
   product: FoodItem
@@ -25,6 +27,9 @@ export function ProductCard({ product, featured = false }: ProductCardProps) {
   const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites()
   const [isProductFavorite, setIsProductFavorite] = useState(false)
   const { toast } = useToast()
+  const { isAuthenticated } = useAuth()
+  const router = useRouter()
+
 
   // Check if product is in favorites
   useEffect(() => {
@@ -36,6 +41,14 @@ export function ProductCard({ product, featured = false }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+
+
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
+
 
     // Create a complete cart item
     const cartItem = {
@@ -61,6 +74,13 @@ export function ProductCard({ product, featured = false }: ProductCardProps) {
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
+
 
     if (isProductFavorite) {
       removeFromFavorites(id)

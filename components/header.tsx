@@ -58,8 +58,6 @@ export function Header() {
           Chili
         </span>
       </div>
-     {
-      user?.role === "USER" && (
        
       <div className="flex-1 relative max-w-xl">
       <form onSubmit={handleSearch} className="relative">
@@ -80,14 +78,9 @@ export function Header() {
         </Button>
       </form>
     </div>
-      )
-     }
+      
 
       <div className="flex items-center gap-2">
-      {  
-      
-        user?.role === "USER" && (
-          <div>
           <Link href="/favorites">
           <Button variant="ghost" size="icon" className="relative group">
             <Heart className="h-5 w-5 group-hover:text-red-500 transition-colors" />
@@ -109,9 +102,6 @@ export function Header() {
             )}
           </Button>
         </Link>
-        </div>
-        )
-      }
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

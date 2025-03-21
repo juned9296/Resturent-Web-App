@@ -19,6 +19,7 @@ type AuthContextType = {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -44,8 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response: ApiResponse = await api.get("/profile", {
               withCredentials: true,
             });
-            setUser(response.data.user);
             setIsAuthenticated(true);
+            setUser(response.data.user);
           } catch (error) {
             console.error("Error fetching user profile:", error);
             setIsAuthenticated(false);
@@ -58,7 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               fetchUserProfile();
             } catch (error) {
               console.error("Error fetching user profile:", error);
-              setIsAuthenticated(false);
               setUser(null);
             } finally {
               setIsLoading(false);
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
       
           fetchUserProfile();
-        }, []);
+        }, [isAuthenticated]);
 
   return (
     <AuthContext.Provider
@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated,
+        setIsAuthenticated
         // login,
         // logout,
         // updateUserProfile,

@@ -7,23 +7,35 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 // import { useAuth } from "@/components/providers/auth-provider"
-import { useState } from "react"
+import { useState , useEffect} from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast"
 import { login } from "@/service/auth"
+import { useAuth } from "@/components/providers/auth-provider"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoggedIn , setIsLogin] = useState(false)
+  const { setIsAuthenticated} = useAuth()
 
   // const { login } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectUrl = searchParams.get("redirect") || "/"
   const { toast } = useToast()
+
+
+  
+useEffect(() => {
+  if (isLoggedIn) {
+    setIsAuthenticated(true);
+    router.push(redirectUrl);
+  }
+}, [isLoggedIn]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +49,7 @@ export default function LoginPage() {
           title: "Login successful",
           description: "Welcome back!",
         })
-        router.push(redirectUrl)
+        setIsLogin(true)
       } else {
         toast({
           title: "Login failed",

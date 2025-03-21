@@ -1,9 +1,9 @@
 import api from "./api"
 
 // 🔹 User Signup
-export const signup = async (fullName: string, email: string, password: string) => {
+export const signup = async (name: string, email: string, password: string) => {
   try {
-    const response = await api.post("/signup", { fullName, email, password })
+    const response = await api.post("/signup", { name, email, password })
     {
         withCredentials: true
     };

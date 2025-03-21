@@ -15,11 +15,10 @@ import { useToast } from "@/components/ui/use-toast"
 import { signup } from "@/service/auth"
 
 export default function SignupPage() {
-  const [fullName, setFullName] = useState("")
+  const [name, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [role, setRole] = useState("user") // Default role
   const [isLoading, setIsLoading] = useState(false)
 
   // const { register } = useAuth()
@@ -41,7 +40,7 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
-      const success = await signup(fullName, email, password,)
+      const success = await signup(name, email, password,)
 
       if (success) {
         toast({
@@ -86,7 +85,7 @@ export default function SignupPage() {
                     id="fullName"
                     type="text"
                     placeholder="Enter your full name"
-                    value={fullName}
+                    value={name}
                     onChange={(e) => setFullName(e.target.value)}
                     required
                   />
