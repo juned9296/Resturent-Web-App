@@ -8,7 +8,7 @@ export function middleware(req: NextRequest) {
 
   const adminRoutes = [
     "/admin", "/admin/products", "/admin/orders", 
-    "/table-services", "/reservation", "/delivery", 
+    "/table-services", "/delivery", 
     "/accounting", "/settings"
   ];
 
@@ -39,7 +39,7 @@ export const config = {
   matcher: [
     "/", // Home page (to handle admin redirect)
     "/admin", "/admin/products", "/admin/orders", 
-    "/table-services", "/reservation", "/delivery", 
+    "/table-services", "/delivery", 
     "/accounting", "/settings" // Protect only admin routes
   ],
 };

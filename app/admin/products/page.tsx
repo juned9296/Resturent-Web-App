@@ -4,26 +4,30 @@ import { SidebarNav } from "@/components/sidebar-nav"
 import { Header } from "@/components/header"
 import { MenuProvider } from "@/components/providers/menu-provider"
 import { Toaster } from "@/components/ui/toaster"
-import { ProductData } from "@/data/products"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Edit, Plus, Search, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
+import { ProductModal } from "@/components/AddProductModal"
+import { getAllProducts } from "@/service/product"
 
 export default function AdminProductsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false)
+  const [products, setProducts] = useState([])
+  const [currentProduct, setCurrentProduct] = useState(null)
   const { toast } = useToast()
 
   // Get unique categories
-  const categories = ["all", ...new Set(ProductData.map((product) => product.category))]
+  const categories = ["all", ...new Set(products.map((product) => product.category))]
 
   // Filter products based on search query and category
-  const filteredProducts = ProductData.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.id.toLowerCase().includes(searchQuery.toLowerCase())
@@ -32,15 +36,61 @@ export default function AdminProductsPage() {
     return matchesSearch && product.category === categoryFilter
   })
 
-  const handleDeleteProduct = (id: string) => {
+  const handleAddNewClick = () => {
+    setCurrentProduct(null)
+    setIsProductModalOpen(true)
+  }
+
+  const handleEditClick = (product) => {
+    setCurrentProduct(product)
+    setIsProductModalOpen(true)
+  }
+
+  const handleSaveProduct = (productData) => {
+    if (currentProduct) {
+      // Edit existing product
+      console.log("Edit product:", productData)
+    // 🔹 Update state with edited product
+    setProducts(products.map(p => (p.id === productData.id ? updatedProduct : p)));
+      
+    console.log("Product updated successfully:", updatedProduct);
+    } else {
+      // Add new product
+      setProducts([...products, productData])
+    }
+  }
+
+  const handleDeleteProduct = (id) => {
+    setProducts(products.filter(product => product.id !== id))
     toast({
       title: "Product deleted",
       description: "The product has been successfully deleted.",
     })
   }
 
+  const closeModal = () => {
+    setIsProductModalOpen(false)
+    setCurrentProduct(null)
+  }
+
+
+
+  useEffect(() => {
+  
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProducts(); 
+        setProducts(data.products); 
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts(); // Call the function
+  }, []); // Runs o
+
   return (
-    <MenuProvider initialItems={ProductData}>
+    <MenuProvider initialItems={products}>
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
         <SidebarNav />
         <div className="flex-1 flex flex-col overflow-hidden md:ml-64">
@@ -49,7 +99,10 @@ export default function AdminProductsPage() {
             <div className="container mx-auto px-4 py-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h1 className="text-3xl font-satisfy text-brand-primary">Product Management</h1>
-                <Button className="bg-brand-primary hover:bg-brand-primary/90">
+                <Button 
+                  className="bg-brand-primary hover:bg-brand-primary/90" 
+                  onClick={handleAddNewClick}
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add New Product
                 </Button>
@@ -129,7 +182,11 @@ export default function AdminProductsPage() {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleEditClick(product)}
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
@@ -165,8 +222,16 @@ export default function AdminProductsPage() {
           </main>
         </div>
       </div>
+      
+      {/* Product Modal (Add/Edit) */}
+      <ProductModal
+        open={isProductModalOpen}
+        onClose={closeModal}
+        onSave={handleSaveProduct}
+        editProduct={currentProduct}
+      />
+      
       <Toaster />
     </MenuProvider>
   )
 }
-
